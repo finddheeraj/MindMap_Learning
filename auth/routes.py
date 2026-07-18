@@ -68,6 +68,7 @@ def oauth_callback(provider_name):
         refresh_token=token.get("refresh_token"),
         token_cipher=token_cipher,
     )
+    session["access_token"] = token.get("access_token")
     session["user_id"] = mapping.id
     session["provider"] = mapping.provider
     flash(f"Signed in with {provider.name.title()}.", "success")
