@@ -11,6 +11,7 @@ const AUTOSAVE_DEBOUNCE_MS = 700;
 document.addEventListener("DOMContentLoaded", () => {
     const config = window.LEARNING_HUB_MINDMAP_CONFIG;
     const initialTree = JSON.parse(document.getElementById("initial-tree-data").textContent);
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
     const mind = new MindElixir({
         el: "#map",
@@ -65,7 +66,9 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(config.saveUrl, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json",
+                            "X-CSRFToken": csrfToken,
+                 },
                 body: JSON.stringify({ nodeData: data.nodeData }),
                 signal: inFlightController.signal,
             });

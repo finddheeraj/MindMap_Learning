@@ -24,6 +24,7 @@
                 </p>
 
                 <form method="post" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <label for="name" class="form-label">Topic Name <span class="text-danger">*</span></label>
                         <input

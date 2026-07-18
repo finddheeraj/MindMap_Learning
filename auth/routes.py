@@ -70,6 +70,7 @@ def oauth_callback(provider_name):
     )
     session["access_token"] = token.get("access_token")
     session["user_id"] = mapping.id
+    session.permanent = True
     session["provider"] = mapping.provider
     session["access_token_expires_at"] = time.time() + token.get("expires_in", 3600)
     flash(f"Signed in with {provider.name.title()}.", "success")

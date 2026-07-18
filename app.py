@@ -14,7 +14,7 @@ import os
 from flask import Flask, render_template
 
 from config import config
-from extensions import db, oauth
+from extensions import db, oauth, csrf
 
 
 def create_app(config_name=None):
@@ -26,9 +26,11 @@ def create_app(config_name=None):
 
     db.init_app(app)
     oauth.init_app(app)
+    csrf.init_app(app)
 
     register_blueprints(app)
     register_error_handlers(app)
+    register_security_headers(app)
 
     with app.app_context():
         # Import models so SQLAlchemy is aware of them before create_all().
@@ -37,6 +39,14 @@ def create_app(config_name=None):
         db.create_all()
 
     return app
+
+def register_security_headers(app):
+    @app.after_request
+    def set_security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
 
 
 def register_blueprints(app):

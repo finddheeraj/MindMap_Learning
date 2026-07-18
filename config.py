@@ -35,6 +35,11 @@ class Config:
 
     # URL-safe base64 Fernet key used to encrypt OAuth refresh tokens at rest.
     TOKEN_ENCRYPTION_KEY = os.environ.get("TOKEN_ENCRYPTION_KEY")
+    
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    PERMANENT_SESSION_LIFETIME = 60 * 60 * 24 * 7  # 7 days
+    WTF_CSRF_ENABLED = True
 
     # Ensure the database directory exists before the app starts.
     @staticmethod
@@ -46,12 +51,14 @@ class DevelopmentConfig(Config):
     """Configuration used while developing locally."""
 
     DEBUG = True
+    SESSION_COOKIE_SECURE = False  # Allow cookies over HTTP for local dev.
 
 
 class ProductionConfig(Config):
     """Configuration used when the application is deployed."""
 
     DEBUG = False
+    SESSION_COOKIE_SECURE = True  # Only send cookies over HTTPS in production.
 
 
 config = {
