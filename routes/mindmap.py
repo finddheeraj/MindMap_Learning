@@ -32,7 +32,7 @@ def view(topic_id):
         return redirect(url_for("topics.index"))
 
     topic = topic_service.get_topic_or_404(storage, topic_id)
-    tree = mindmap_service.build_tree(topic)
+    tree = mindmap_service.build_tree(storage, topic)
     return render_template(
         "mindmap.html",
         topic=topic,
@@ -50,7 +50,7 @@ def save(topic_id):
         return jsonify({"status": "error", "message": "Missing 'nodeData' in request body."}), 400
 
     try:
-        topic = mindmap_service.save_tree(topic_id, payload["nodeData"])
+        topic = mindmap_service.save_tree(storage, topic_id, payload["nodeData"])
     except MindMapValidationError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
