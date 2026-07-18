@@ -35,3 +35,8 @@ def get_refresh_token(mapping, token_cipher):
     if not mapping.refresh_token:
         return None
     return token_cipher.decrypt(mapping.refresh_token)
+
+def save_drive_file_id(mapping, file_id: str) -> None:
+    """Save the Google Drive file ID for the user's data."""
+    mapping.drive_file_id = file_id
+    db.session.commit()
