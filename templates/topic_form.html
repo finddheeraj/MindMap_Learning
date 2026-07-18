@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Topic' if mode == 'edit' else 'Add Topic' }} - Learning Hub{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-7 col-xl-6">
+
+        <div class="mb-4">
+            <a href="{{ url_for('topics.index') }}" class="text-decoration-none back-link">
+                <i class="bi bi-arrow-left me-1"></i> Back to topics
+            </a>
+        </div>
+
+        <div class="card content-card">
+            <div class="card-body p-4">
+                <h4 class="mb-1">
+                    <i class="bi {{ 'bi-pencil-square' if mode == 'edit' else 'bi-plus-circle' }} me-2"></i>
+                    {{ 'Edit Topic' if mode == 'edit' else 'Add New Topic' }}
+                </h4>
+                <p class="text-muted mb-4">
+                    {{ 'Update the topic name or description below.' if mode == 'edit' else 'Give your new learning topic a name and optional description.' }}
+                </p>
+
+                <form method="post" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Topic Name <span class="text-danger">*</span></label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="name"
+                            name="name"
+                            value="{{ form_name }}"
+                            maxlength="150"
+                            placeholder="e.g. Machine Learning Fundamentals"
+                            required
+                            autofocus
+                        >
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description <span class="text-muted small">(optional)</span></label>
+                        <textarea
+                            class="form-control"
+                            id="description"
+                            name="description"
+                            rows="3"
+                            maxlength="500"
+                            placeholder="A short summary of what this topic covers..."
+                        >{{ form_description }}</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{{ url_for('topics.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>
+                            {{ 'Save Changes' if mode == 'edit' else 'Create Topic' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

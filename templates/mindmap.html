@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.name }} - Mind Map{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/mind-elixir/MindElixir.css') }}">
+<style>
+    /* Mind map page needs the canvas to fill the remaining viewport height,
+       so we override the default container padding just for this page. */
+    .mindmap-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        height: calc(100vh - 150px);
+        min-height: 480px;
+    }
+
+    #map {
+        flex: 1 1 auto;
+        width: 100%;
+        border-radius: var(--lh-radius, 14px);
+        border: 1px solid var(--lh-border, #eaebf3);
+        background-color: #fbfbfe;
+        overflow: hidden;
+    }
+
+    .mindmap-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .save-status {
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--lh-text-muted, #7b7f96);
+        transition: color 0.2s ease;
+    }
+
+    .save-status.saving {
+        color: #b8860b;
+    }
+
+    .save-status.saved {
+        color: #2e7d32;
+    }
+
+    .save-status.error {
+        color: #c0392b;
+    }
+
+    .save-status .spinner-border {
+        width: 0.85rem;
+        height: 0.85rem;
+        border-width: 2px;
+    }
+
+    @media (max-width: 767.98px) {
+        .mindmap-shell {
+            height: calc(100vh - 190px);
+            min-height: 380px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="mindmap-shell">
+    <div class="mindmap-toolbar">
+        <div>
+            <a href="{{ url_for('topics.index') }}" class="text-decoration-none back-link">
+                <i class="bi bi-arrow-left me-1"></i> Back to topics
+            </a>
+            <h4 class="mb-0 mt-1">
+                <i class="bi bi-diagram-3 me-2 text-primary"></i>{{ topic.name }}
+            </h4>
+        </div>
+        <div id="saveStatus" class="save-status">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>All changes saved</span>
+        </div>
+    </div>
+
+    <div id="map"></div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script id="initial-tree-data" type="application/json">{{ initial_tree | tojson }}</script>
+<script>
+    // Configuration handed off to the mindmap.js module - keeps the module
+    // reusable/testable without hardcoding the topic id or save URL.
+    window.LEARNING_HUB_MINDMAP_CONFIG = {
+        topicId: {{ topic.id | tojson }},
+        saveUrl: {{ url_for('mindmap.save', topic_id=topic.id) | tojson }},
+    };
+</script>
+<script type="module" src="{{ url_for('static', filename='js/mindmap.js') }}"></script>
+{% endblock %}

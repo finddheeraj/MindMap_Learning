@@ -1,0 +1,199 @@
+:root {
+    --lh-primary: #4f5fff;
+    --lh-primary-dark: #3f4de0;
+    --lh-bg: #f5f6fb;
+    --lh-card-bg: #ffffff;
+    --lh-border: #eaebf3;
+    --lh-text-muted: #7b7f96;
+    --lh-radius: 14px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--lh-bg);
+    color: #1f2130;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ---------- Navbar ---------- */
+.app-navbar {
+    background-color: var(--lh-card-bg);
+    border-bottom: 1px solid var(--lh-border);
+    box-shadow: 0 1px 3px rgba(20, 20, 43, 0.04);
+}
+
+.app-navbar .navbar-brand {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #1f2130;
+}
+
+.app-navbar .navbar-brand i {
+    color: var(--lh-primary);
+    font-size: 1.35rem;
+}
+
+.app-navbar .nav-link {
+    font-weight: 500;
+    color: #4a4d5e;
+    transition: color 0.15s ease;
+}
+
+.app-navbar .nav-link:hover {
+    color: var(--lh-primary);
+}
+
+/* ---------- Page header ---------- */
+.page-title {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+    color: var(--lh-text-muted);
+}
+
+.btn-add-topic {
+    background-color: var(--lh-primary);
+    border-color: var(--lh-primary);
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+    box-shadow: 0 4px 12px rgba(79, 95, 255, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-add-topic:hover {
+    background-color: var(--lh-primary-dark);
+    border-color: var(--lh-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(79, 95, 255, 0.32);
+}
+
+/* ---------- Cards ---------- */
+.content-card {
+    border: 1px solid var(--lh-border);
+    border-radius: var(--lh-radius);
+    box-shadow: 0 2px 10px rgba(20, 20, 43, 0.04);
+}
+
+/* ---------- Table ---------- */
+.topics-table thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--lh-text-muted);
+    border-bottom: 2px solid var(--lh-border);
+    white-space: nowrap;
+}
+
+.topics-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.topics-table tbody tr:hover {
+    background-color: #f8f9ff;
+}
+
+.topics-table td {
+    vertical-align: middle;
+}
+
+.sort-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.sort-link:hover {
+    color: var(--lh-primary);
+}
+
+.btn-launch {
+    background-color: rgba(79, 95, 255, 0.1);
+    color: var(--lh-primary);
+    border: none;
+}
+
+.btn-launch:hover {
+    background-color: var(--lh-primary);
+    color: #fff;
+}
+
+/* ---------- Empty state ---------- */
+.empty-icon {
+    font-size: 3rem;
+    color: var(--lh-primary);
+    opacity: 0.6;
+}
+
+/* ---------- Forms ---------- */
+.form-control:focus {
+    border-color: var(--lh-primary);
+    box-shadow: 0 0 0 0.2rem rgba(79, 95, 255, 0.15);
+}
+
+.back-link {
+    color: var(--lh-text-muted);
+    font-weight: 500;
+}
+
+.back-link:hover {
+    color: var(--lh-primary);
+}
+
+/* ---------- Error pages ---------- */
+.error-page i {
+    color: var(--lh-primary);
+    opacity: 0.7;
+}
+
+/* ---------- Flash messages ---------- */
+.flash-wrapper .alert {
+    border: none;
+    border-radius: 10px;
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 767.98px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .btn-add-topic {
+        width: 100%;
+        text-align: center;
+    }
+
+    .topics-table thead {
+        display: none;
+    }
+
+    .topics-table, .topics-table tbody, .topics-table tr, .topics-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .topics-table tr {
+        border: 1px solid var(--lh-border);
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .topics-table td {
+        text-align: left !important;
+        padding: 0.35rem 0;
+        border: none;
+    }
+
+    .topics-table td.text-center {
+        display: inline-block;
+        width: auto;
+        margin-right: 0.5rem;
+    }
+}

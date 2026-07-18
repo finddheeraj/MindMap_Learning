@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Hub - My Topics{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title mb-1">My Learning Topics</h1>
+        <p class="page-subtitle mb-0">Organize what you're learning into visual mind maps.</p>
+    </div>
+    <a href="{{ url_for('topics.new_topic') }}" class="btn btn-primary btn-add-topic">
+        <i class="bi bi-plus-lg me-1"></i> Add Topic
+    </a>
+</div>
+
+<div class="card content-card">
+    <div class="card-body">
+
+        <div class="row g-2 mb-3">
+            <div class="col-12 col-md-6">
+                <form class="d-flex" method="get" action="{{ url_for('topics.index') }}">
+                    <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                    <input type="hidden" name="sort_dir" value="{{ sort_dir }}">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input
+                            type="text"
+                            class="form-control border-start-0"
+                            name="q"
+                            id="searchInput"
+                            placeholder="Search topics..."
+                            value="{{ search }}"
+                            autocomplete="off"
+                        >
+                        {% if search %}
+                        <a href="{{ url_for('topics.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if topics %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle topics-table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">S.No</th>
+                        <th>
+                            <a class="sort-link" href="{{ url_for('topics.index', q=search, sort_by='name', sort_dir='asc' if sort_by != 'name' or sort_dir == 'desc' else 'desc') }}">
+                                Topic
+                                {% if sort_by == 'name' %}
+                                    <i class="bi bi-caret-{{ 'up' if sort_dir == 'asc' else 'down' }}-fill"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a class="sort-link" href="{{ url_for('topics.index', q=search, sort_by='updated_at', sort_dir='asc' if sort_by != 'updated_at' or sort_dir == 'desc' else 'desc') }}">
+                                Last Updated
+                                {% if sort_by == 'updated_at' %}
+                                    <i class="bi bi-caret-{{ 'up' if sort_dir == 'asc' else 'down' }}-fill"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th class="text-center">Launch Mind Map</th>
+                        <th class="text-center">Edit</th>
+                        <th class="text-center">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for topic in topics %}
+                    <tr>
+                        <td class="text-muted">{{ loop.index }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ topic.name }}</div>
+                            {% if topic.description %}
+                            <div class="text-muted small">{{ topic.description }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ topic.updated_at.strftime('%d %b %Y, %H:%M') }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('mindmap.view', topic_id=topic.id) }}" class="btn btn-sm btn-launch" title="Launch Mind Map">
+                                <i class="bi bi-diagram-3"></i>
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('topics.edit_topic', topic_id=topic.id) }}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger btn-delete-topic"
+                                title="Delete"
+                                data-topic-name="{{ topic.name }}"
+                                data-delete-url="{{ url_for('topics.delete_topic', topic_id=topic.id) }}"
+                            >
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state text-center py-5">
+            <i class="bi bi-journal-plus empty-icon mb-3"></i>
+            {% if search %}
+                <h5 class="mb-2">No topics match "{{ search }}"</h5>
+                <p class="text-muted mb-3">Try a different search term.</p>
+                <a href="{{ url_for('topics.index') }}" class="btn btn-outline-secondary">Clear search</a>
+            {% else %}
+                <h5 class="mb-2">No topics yet</h5>
+                <p class="text-muted mb-3">Create your first learning topic to get started.</p>
+                <a href="{{ url_for('topics.new_topic') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Add Topic
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Delete Topic</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="deleteTopicName"></strong>?
+                This will permanently remove its mind map and notes.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
