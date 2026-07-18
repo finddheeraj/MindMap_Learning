@@ -7,14 +7,10 @@ directly, which keeps route handlers thin and testable.
 """
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from extensions import db
-from models import Topic
 
 
 class TopicValidationError(Exception):
     """Raised when incoming topic data fails validation."""
-
-
 
 @dataclass
 class TopicData:
@@ -87,12 +83,8 @@ def create_topic(storage, name: str, description: str = "") -> TopicData:
     name = _validate_name(name)
     description = (description or "").strip()
     
-    # Shadow-write to SQLite so MindMapNode FK and mindmap_service still work
-    shadow = Topic(name=name, description=description)
-    db.session.add(shadow)
-    db.session.flush()
-    topic_id = shadow.id
-    db.session.commit()
+    data = storage.load_user_data()
+    topic_id = data.get("next_topic_id", 1)
     
     now = _now()
     topic = TopicData(
@@ -102,7 +94,7 @@ def create_topic(storage, name: str, description: str = "") -> TopicData:
         created_at=now,
         updated_at=now
     )
-    data = storage.load_user_data()
+    data["next_topic_id"] = topic_id + 1
     data.setdefault("topics", []).append(_topic_to_dict(topic))
     storage.save_user_data(data)
     return topic
@@ -123,12 +115,8 @@ def update_topic(storage, topic_id: int, name: str, description: str = "") -> To
             t["description"] = description
             t["updated_at"] = _now().isoformat()
             storage.save_user_data(data)
-            # Shadow-Update
-            shadow = Topic.query.get(topic_id)
-            if shadow:
-                shadow.name = name
-                db.session.commit()
             return _topic_from_dict(t)
+    
     from flask import abort
     abort(404)
     
@@ -140,9 +128,4 @@ def delete_topic(storage, topic_id: int) -> None:
     data = storage.load_user_data()
     data["topics"] = [t for t in data.get("topics", []) if t["id"] != topic_id]
     storage.save_user_data(data)
-    # Shadow-Delete
-    shadow = Topic.query.get(topic_id)
-    if shadow:
-        db.session.delete(shadow)
-        db.session.commit()
     

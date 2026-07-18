@@ -32,7 +32,7 @@ def create_app(config_name=None):
 
     with app.app_context():
         # Import models so SQLAlchemy is aware of them before create_all().
-        from models import MindMapNode, Topic, UserMapping  # noqa: F401
+        from models import UserMapping  # noqa: F401
 
         db.create_all()
 
