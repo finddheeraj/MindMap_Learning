@@ -52,6 +52,9 @@ def register_blueprints(app):
 
 
 def register_error_handlers(app):
+    from flask import flash, jsonify, redirect, request, session, url_for
+    from storage.base import StorageAuthError, StorageNetworkError, StorageRateLimitError, StorageServerError
+
     @app.errorhandler(404)
     def not_found(error):
         return render_template("errors/404.html"), 404
@@ -59,6 +62,35 @@ def register_error_handlers(app):
     @app.errorhandler(500)
     def server_error(error):
         return render_template("errors/500.html"), 500
+
+    @app.errorhandler(StorageAuthError)
+    def handle_storage_auth_error(error):
+        if request.is_json:
+            return jsonify({"status": "error", "message": "Cloud storage access was revoked. Please sign in again."}), 401
+        flash("Your cloud storage access was revoked. Please sign in again.", "danger")
+        session.clear()
+        return redirect(url_for("topics.index"))
+
+    @app.errorhandler(StorageRateLimitError)
+    def handle_storage_rate_limit(error):
+        if request.is_json:
+            return jsonify({"status": "error", "message": "Cloud storage rate limit reached. Please try again shortly."}), 429
+        flash("Cloud storage rate limit reached. Please try again shortly.", "warning")
+        return redirect(url_for("topics.index"))
+
+    @app.errorhandler(StorageServerError)
+    def handle_storage_server_error(error):
+        if request.is_json:
+            return jsonify({"status": "error", "message": "Cloud storage returned an error. Please try again."}), 502
+        flash("Cloud storage returned an error. Please try again.", "danger")
+        return redirect(url_for("topics.index"))
+
+    @app.errorhandler(StorageNetworkError)
+    def handle_storage_network_error(error):
+        if request.is_json:
+            return jsonify({"status": "error", "message": "Could not reach cloud storage. Please check your connection."}), 503
+        flash("Could not reach cloud storage. Please check your connection.", "danger")
+        return redirect(url_for("topics.index"))
 
 
 app = create_app()
