@@ -5,11 +5,13 @@ Mind map routes.
 `POST /topic/<id>/mindmap/save` accepts the full current tree (as
 produced by Mind Elixir's `getData().nodeData`) and persists it.
 """
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, current_app
 from models import UserMapping
 from services import topic_service
 from services.topic_service import TopicValidationError
 from storage import get_storage
+from services.token_refresh_service import TokenRefreshError, get_valid_access_token
+from utils.token_cipher import TokenCipher
 
 topics_bp = Blueprint("topics", __name__)
 
@@ -23,9 +25,13 @@ def _current_user_and_storage():
     if not mapping:
         session.clear()
         return None, None
-    access_token = session.get("access_token")
-    if not access_token:
+    try:
+        token_cipher = TokenCipher(current_app.config["TOKEN_ENCRYPTION_KEY"])
+        access_token = get_valid_access_token(mapping, token_cipher)
+    except TokenRefreshError:
+        session.clear()
         return None, None
+
     return mapping, get_storage(mapping, access_token)
 
 

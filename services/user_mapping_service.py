@@ -40,3 +40,8 @@ def save_drive_file_id(mapping, file_id: str) -> None:
     """Save the Google Drive file ID for the user's data."""
     mapping.drive_file_id = file_id
     db.session.commit()
+    
+def update_refresh_token(mapping, new_refresh_token: str, token_cipher) -> None:
+    """Persist a rotated refresh token, replacing the previously stored one."""
+    mapping.refresh_token = token_cipher.encrypt(new_refresh_token)
+    db.session.commit()

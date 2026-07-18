@@ -1,5 +1,5 @@
 """Multi-provider OAuth authentication routes."""
-
+import time
 from authlib.integrations.base_client.errors import OAuthError
 from flask import Blueprint, current_app, flash, redirect, session, url_for
 
@@ -71,6 +71,7 @@ def oauth_callback(provider_name):
     session["access_token"] = token.get("access_token")
     session["user_id"] = mapping.id
     session["provider"] = mapping.provider
+    session["access_token_expires_at"] = time.time() + token.get("expires_in", 3600)
     flash(f"Signed in with {provider.name.title()}.", "success")
     return redirect(url_for("topics.index"))
 

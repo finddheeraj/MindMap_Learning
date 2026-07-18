@@ -1,10 +1,12 @@
 """Mind map routes."""
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for, current_app
 from models import UserMapping
 from services import mindmap_service, topic_service
 from services.mindmap_service import MindMapValidationError
+from services.token_refresh_service import TokenRefreshError, get_valid_access_token
 from storage import get_storage
+from utils.token_cipher import TokenCipher
 
 mindmap_bp = Blueprint("mindmap", __name__)
 
@@ -18,9 +20,14 @@ def _current_user_and_storage():
     if not mapping:
         session.clear()
         return None, None
-    access_token = session.get("access_token")
-    if not access_token:
+
+    try:
+        token_cipher = TokenCipher(current_app.config["TOKEN_ENCRYPTION_KEY"])
+        access_token = get_valid_access_token(mapping, token_cipher)
+    except TokenRefreshError:
+        session.clear()
         return None, None
+
     return mapping, get_storage(mapping, access_token)
 
 
