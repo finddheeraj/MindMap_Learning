@@ -11,6 +11,14 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE_DIR = os.path.join(BASE_DIR, "database")
 
+def _resolve_database_url():
+    """Return the database url, fixing the postgres:// -> postgresql:// prefix that Render use but SQLAlchimy rejects."""
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url:
+        if  database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        return database_url
+    return f"sqlite:///{os.path.join(DATABASE_DIR, 'learning_hub.db')}"
 
 class Config:
     """Base configuration shared by every application environment."""
@@ -19,9 +27,8 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 
     # SQLite database lives inside the /database folder.
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", f"sqlite:///{os.path.join(DATABASE_DIR, 'learning_hub.db')}"
-    )
+    #SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", f"sqlite:///{os.path.join(DATABASE_DIR, 'learning_hub.db')}")
+    SQLALCHEMY_DATABASE_URI = _resolve_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Google OAuth web-client credentials. Configure these as environment
