@@ -51,7 +51,8 @@ class Config:
     # Ensure the database directory exists before the app starts.
     @staticmethod
     def init_app(app):
-        os.makedirs(DATABASE_DIR, exist_ok=True)
+        if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
+            os.makedirs(DATABASE_DIR, exist_ok=True)
 
 
 class DevelopmentConfig(Config):
